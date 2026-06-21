@@ -15,7 +15,7 @@ import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 // This class will not load on dedicated servers. Accessing client side code from here is safe.
 @Mod(value = Searchlight.MODID, dist = Dist.CLIENT)
 // You can use EventBusSubscriber to automatically register all static methods in the class annotated with @SubscribeEvent
-@EventBusSubscriber(modid = Searchlight.MODID, value = Dist.CLIENT)
+@EventBusSubscriber(modid = Searchlight.MODID, bus = EventBusSubscriber.Bus.MOD, value = Dist.CLIENT)
 public class SearchlightClient {
     public SearchlightClient(ModContainer container) {
         // Allows NeoForge to create a config screen for this mod's configs.
