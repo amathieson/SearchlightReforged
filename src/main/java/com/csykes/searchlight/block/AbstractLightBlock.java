@@ -39,8 +39,9 @@ public abstract class AbstractLightBlock extends FaceAttachedHorizontalDirection
         boolean wasPoweredBefore = state.getValue(LIT);
         if (wasPoweredBefore != isPoweredNow) {
             BlockState newState = state.setValue(LIT, isPoweredNow);
-            world.setBlock(pos, newState, 3);
+            world.setBlock(pos, newState, 2);
             onPowerChanged(world, pos, newState, isPoweredNow);
+            world.updateNeighborsAt(pos, this);
         }
     }
 
@@ -53,7 +54,8 @@ public abstract class AbstractLightBlock extends FaceAttachedHorizontalDirection
             if (brightness != BrightnessStage.ULTRA) {
                 if (!world.isClientSide) {
                     BrightnessStage next = brightness.next();
-                    world.setBlock(pos, state.setValue(BRIGHTNESS, next), 3);
+                    world.setBlock(pos, state.setValue(BRIGHTNESS, next), 2);
+                    world.updateNeighborsAt(pos, this);
                     if (!player.getAbilities().instabuild) {
                         stack.shrink(1);
                     }
@@ -68,7 +70,8 @@ public abstract class AbstractLightBlock extends FaceAttachedHorizontalDirection
             if (brightness != BrightnessStage.OFF) {
                 if (!world.isClientSide) {
                     BrightnessStage next = brightness.previous();
-                    world.setBlock(pos, state.setValue(BRIGHTNESS, next), 3);
+                    world.setBlock(pos, state.setValue(BRIGHTNESS, next), 2);
+                    world.updateNeighborsAt(pos, this);
                     if (!player.getAbilities().instabuild) {
                         stack.shrink(1);
                     }

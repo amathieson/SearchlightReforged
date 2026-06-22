@@ -36,9 +36,10 @@ public class LightPeripheral implements IPeripheral {
         if (world == null) return;
         
         BlockState state = world.getBlockState(pos);
-        if (state.getBlock() instanceof AbstractLightBlock) {
+        if (state.getBlock() instanceof AbstractLightBlock block) {
             BrightnessStage stage = BrightnessStage.fromId(Math.max(0, Math.min(4, level)));
-            world.setBlock(pos, state.setValue(AbstractLightBlock.BRIGHTNESS, stage), 3);
+            world.setBlock(pos, state.setValue(AbstractLightBlock.BRIGHTNESS, stage), 2);
+            world.updateNeighborsAt(pos, block);
         }
     }
 
@@ -58,8 +59,9 @@ public class LightPeripheral implements IPeripheral {
         if (world == null) return;
         
         BlockState state = world.getBlockState(pos);
-        if (state.getBlock() instanceof AbstractLightBlock) {
-            world.setBlock(pos, state.setValue(AbstractLightBlock.LIT, !lit), 3);
+        if (state.getBlock() instanceof AbstractLightBlock block) {
+            world.setBlock(pos, state.setValue(AbstractLightBlock.LIT, !lit), 2);
+            world.updateNeighborsAt(pos, block);
         }
     }
 

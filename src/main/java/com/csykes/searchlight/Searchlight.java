@@ -58,7 +58,7 @@ public class Searchlight {
             .requiresCorrectToolForDrops()
             .strength(4.0f)
             .noOcclusion()
-            .lightLevel((state) -> (state.getValue(AbstractLightBlock.BRIGHTNESS).getId() + 1) * 3)));
+            .lightLevel((state) -> !state.getValue(AbstractLightBlock.LIT) ? (state.getValue(AbstractLightBlock.BRIGHTNESS).getId() + 1) * 3 : 0)));
 
     public static final DeferredItem<BlockItem> SEARCHLIGHT_ITEM = ITEMS.registerSimpleBlockItem("searchlight", SEARCHLIGHT_BLOCK);
 
@@ -110,25 +110,12 @@ public class Searchlight {
             }).build());
 
     public Searchlight(IEventBus modEventBus, ModContainer modContainer) {
-        modEventBus.addListener(this::commonSetup);
         modEventBus.addListener(this::registerCapabilities);
 
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
         CREATIVE_MODE_TABS.register(modEventBus);
         BLOCK_ENTITY_TYPES.register(modEventBus);
-
-        modEventBus.addListener(this::addCreative);
-
-        modContainer.registerConfig(ModConfig.Type.COMMON, Config.SPEC);
-    }
-
-    private void commonSetup(FMLCommonSetupEvent event) {
-        LOGGER.info("HELLO FROM COMMON SETUP");
-    }
-
-    private void addCreative(BuildCreativeModeTabContentsEvent event) {
-        // Additional creative tab population if needed
     }
 
     private void registerCapabilities(RegisterCapabilitiesEvent event) {

@@ -26,6 +26,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.FaceAttachedHorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 public class SearchlightBlockRenderer implements BlockEntityRenderer<SearchlightBlockEntity> {
@@ -78,11 +79,12 @@ public class SearchlightBlockRenderer implements BlockEntityRenderer<Searchlight
 
     @Override
     public void render(SearchlightBlockEntity blockEntity, float partialTick, PoseStack poseStack, MultiBufferSource bufferSource, int packedLight, int packedOverlay) {
+        BlockState state = blockEntity.getBlockState();
         Vec3 pivot = getModelPivot(blockEntity);
         Vec3 direction = blockEntity.getBeamDirection();
         VertexConsumer vertexConsumer = bufferSource.getBuffer(RenderType.entityCutoutNoCull(SEARCHLIGHT_BODY_TEXTURE));
 
-        boolean isOnWall = blockEntity.getBlockState().getValue(FaceAttachedHorizontalDirectionalBlock.FACE) == AttachFace.WALL;
+        boolean isOnWall = state.getValue(FaceAttachedHorizontalDirectionalBlock.FACE) == AttachFace.WALL;
         ModelPart body = isOnWall ? onWallBody : onFloorBody;
         ModelPart lightFace = isOnWall ? onWallLightFace : onFloorLightFace;
 
@@ -91,7 +93,7 @@ public class SearchlightBlockRenderer implements BlockEntityRenderer<Searchlight
         body.xRot = (float) (Mth.atan2(Mth.sqrt((float) (direction.z * direction.z + direction.x * direction.x)), (float) direction.y) + Math.PI);
         body.render(poseStack, vertexConsumer, packedLight, packedOverlay);
 
-        boolean shouldRenderLight = blockEntity.getLightSourcePos() != null && !blockEntity.getBlockState().getValue(AbstractLightBlock.LIT);
+        boolean shouldRenderLight = blockEntity.getLightSourcePos() != null && !state.getValue(AbstractLightBlock.LIT);
         lightFace.setPos((float) pivot.x, (float) pivot.y, (float) pivot.z);
         lightFace.yRot = body.yRot;
         lightFace.xRot = body.xRot;
@@ -115,12 +117,16 @@ public class SearchlightBlockRenderer implements BlockEntityRenderer<Searchlight
     }
 
     protected Vec3 getModelPivot(SearchlightBlockEntity blockEntity) {
-        Direction direction = SearchlightUtil.getDirection(blockEntity.getBlockState());
-        if (direction == Direction.UP) return FLOOR_PIVOT;
-        if (direction == Direction.DOWN) return CEILING_PIVOT;
-        if (direction == Direction.EAST) return EAST_PIVOT;
-        if (direction == Direction.WEST) return WEST_PIVOT;
-        if (direction == Direction.SOUTH) return SOUTH_PIVOT;
-        return NORTH_PIVOT;
+        BlockState state = blockEntity.getBlockState();
+        AttachFace face = state.getValue(FaceAttachedHorizontalDirectionalBlock.FACE);
+        if (face == AttachFace.CEILING) return CEILING_PIVOT;
+        if (face == AttachFace.FLOOR) return FLOOR_PIVOT;
+
+        return switch (state.getValue(FaceAttachedHorizontalDirectionalBlock.FACING)) {
+            case EAST -> EAST_PIVOT;
+            case WEST -> WEST_PIVOT;
+            case SOUTH -> SOUTH_PIVOT;
+            default -> NORTH_PIVOT;
+        };
     }
 }

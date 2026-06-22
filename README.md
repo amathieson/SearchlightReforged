@@ -21,12 +21,12 @@ For a full breakdown of the base features, blocks, and recipes, check out the or
 - You can dim and brighten the lights by right-clicking with glowstone (to increase) or redstone (to decrease)
 - Redstone toggleable (if provided with a redstone signal, light goes off)
 - Computer Craft Integration
-    - GetBrightness 
-    - SetBrightness
+    - GetBrightness() 
+    - SetBrightness(int)
   
 ### Todo List:
 - [ ] Dyeable searchlights
 - [ ] fix the super bright beacon 
-- [ ] light dimming is quite weird on the non search light
-- [ ] add recipes
+- [ ] fix recipes
+- [ ] DYENAMICS SUPPORT?
 

@@ -45,7 +45,7 @@ public class WallLightBlock extends AbstractLightBlock implements EntityBlock {
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
                 .setValue(FACE, AttachFace.WALL)
-                .setValue(LIT, true)
+                .setValue(LIT, false)
                 .setValue(BRIGHTNESS, BrightnessStage.MEDIUM));
     }
 
