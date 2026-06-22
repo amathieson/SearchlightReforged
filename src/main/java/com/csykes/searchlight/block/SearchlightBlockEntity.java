@@ -32,8 +32,10 @@ public class SearchlightBlockEntity extends BlockEntity {
     }
 
     @Override
-    public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        return saveCustomOnly(provider);
+    public @NotNull CompoundTag getUpdateTag(HolderLookup.Provider provider) {
+        CompoundTag tag = super.getUpdateTag(provider);
+        saveAdditional(tag, provider);
+        return tag;
     }
 
     @Override
@@ -68,10 +70,13 @@ public class SearchlightBlockEntity extends BlockEntity {
     }
 
     public boolean deleteLightSource() {
+        if (level == null || level.isClientSide) return false;
         BlockPos oldLightSourcePos = lightSourcePos;
-        setLightSourcePos(null);
-        if (oldLightSourcePos != null && SearchlightUtil.getBlockStateForceLoad(level, oldLightSourcePos).getBlock() instanceof SearchlightLightSourceBlock)
-            return SearchlightUtil.setBlockStateForceLoad(level, oldLightSourcePos, Blocks.AIR.defaultBlockState());
+        this.lightSourcePos = null;
+        setChanged();
+        level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
+        if (oldLightSourcePos != null && level.getBlockState(oldLightSourcePos).getBlock() instanceof SearchlightLightSourceBlock)
+            return level.setBlock(oldLightSourcePos, Blocks.AIR.defaultBlockState(), 3);
         return false;
     }
 
@@ -79,23 +84,31 @@ public class SearchlightBlockEntity extends BlockEntity {
         BlockPos lightPos = getLightSourcePos();
         if (lightPos == null)
             return false;
-        deleteLightSource();
-        if (SearchlightUtil.setBlockStateForceLoad(level, worldPosition, getBlockState().setValue(SearchlightBlock.POWERED, true)))
-            return SearchlightUtil.castBlockEntity(level.getBlockEntity(worldPosition), worldPosition, (SearchlightBlockEntity blockEntity) -> blockEntity.setLightSourcePos(lightPos));
-        return false;
+        
+        // Delete the actual light source block but keep the position saved
+        if (level != null && !level.isClientSide && level.getBlockState(lightPos).getBlock() instanceof SearchlightLightSourceBlock) {
+            level.setBlock(lightPos, Blocks.AIR.defaultBlockState(), 3);
+        }
+        
+        // Ensure we mark the BE as changed so the position is saved even if the block is gone
+        setChanged();
+        return true;
     }
 
     public boolean turnOnLightSource() {
-        BlockPos lightPos = getLightSourcePos();
-        if (lightPos == null)
-            return false;
-        if (SearchlightUtil.setBlockStateForceLoad(level, worldPosition, getBlockState().setValue(SearchlightBlock.POWERED, false))) {
-            if (level.getBlockState(lightPos).isAir())
-                return SearchlightUtil.castBlockEntity(level.getBlockEntity(worldPosition), worldPosition, (SearchlightBlockEntity blockEntity) -> blockEntity.placeLightSource(lightPos));
-            BlockPos dire = lightPos.subtract(worldPosition);
-            return this.raycastAndPlaceLightSource(new Vec3(dire.getX(), dire.getY(), dire.getZ()));
+        // Since AbstractLightBlock now handles the blockstate change, we just need to place the light source
+        if (lightSourcePos != null) {
+            BlockState currentState = level.getBlockState(lightSourcePos);
+            if (currentState.isAir() || currentState.getBlock() instanceof SearchlightLightSourceBlock) {
+                return placeLightSource(lightSourcePos);
+            }
+            // If the old position is blocked, try to find a new one in the SAME direction
+            // and we want to keep the custom angle if it was set
+            return this.raycastAndPlaceLightSource(getBeamDirection());
         }
-        return false;
+        
+        // If we don't have a saved position, use the default direction based on block orientation
+        return this.raycastAndPlaceLightSource(SearchlightUtil.directionToBeamVector(SearchlightUtil.getDirection(getBlockState())));
     }
 
     public boolean raycastAndPlaceLightSource(@NotNull Vec3 beamDirection) {
@@ -105,20 +118,31 @@ public class SearchlightBlockEntity extends BlockEntity {
     }
 
     public boolean placeLightSource(@Nullable BlockPos newLightPos) {
-        deleteLightSource();
         if (newLightPos == null) {
-            setLightSourcePos(null);
+            deleteLightSource();
             return false;
         }
-        BlockState oldBlockState = SearchlightUtil.getBlockStateForceLoad(level, newLightPos);
-        if (!SearchlightUtil.setBlockStateForceLoad(level, newLightPos, Searchlight.LIGHT_SOURCE_BLOCK.get().defaultBlockState()))
+
+        if (level == null || level.isClientSide) return false;
+
+        // If there's an existing light source somewhere else, delete it
+        if (lightSourcePos != null && !lightSourcePos.equals(newLightPos)) {
+            deleteLightSource();
+        }
+
+        BlockState oldBlockState = level.getBlockState(newLightPos);
+        if (!level.setBlock(newLightPos, Searchlight.LIGHT_SOURCE_BLOCK.get().defaultBlockState(), 3))
             return false;
+        
         if (!SearchlightUtil.castBlockEntity(level.getBlockEntity(newLightPos), newLightPos, (SearchlightLightSourceBlockEntity lightBlockEntity) -> {
             lightBlockEntity.searchlightBlockPos = getBlockPos();
             setLightSourcePos(newLightPos);
         })) {
-            SearchlightUtil.setBlockStateForceLoad(level, newLightPos, oldBlockState);
-            setLightSourcePos(null);
+            level.setBlock(newLightPos, oldBlockState, 3);
+            // If it failed to place, and it wasn't already there, clear it
+            if (lightSourcePos != null && lightSourcePos.equals(newLightPos)) {
+                setLightSourcePos(null);
+            }
             return false;
         }
         return true;
@@ -153,6 +177,7 @@ public class SearchlightBlockEntity extends BlockEntity {
 
     protected void setLightSourcePos(@Nullable BlockPos lightSourcePos) {
         this.lightSourcePos = lightSourcePos;
+        setChanged();
         if (level != null && !level.isClientSide) {
              level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
         }

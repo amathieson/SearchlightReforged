@@ -18,8 +18,15 @@ For a full breakdown of the base features, blocks, and recipes, check out the or
 ### What's New in this Port:
 - Fully ported to NeoForge and Minecraft 1.21.x
 - Refactored codebase for better internal compatibility
-
+- You can dim and brighten the lights by right-clicking with glowstone (to increase) or redstone (to decrease)
+- Redstone toggleable (if provided with a redstone signal, light goes off)
+- Computer Craft Integration
+    - GetBrightness 
+    - SetBrightness
+  
 ### Todo List:
-- [ ] Redstone toggleable lights
 - [ ] Dyeable searchlights
-- [ ] CC-Tweaked (ComputerCraft) interactions
+- [ ] fix the super bright beacon 
+- [ ] light dimming is quite weird on the non search light
+- [ ] add recipes
+

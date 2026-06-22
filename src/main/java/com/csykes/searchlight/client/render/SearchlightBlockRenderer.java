@@ -1,6 +1,7 @@
 package com.csykes.searchlight.client.render;
 
 import com.csykes.searchlight.Searchlight;
+import com.csykes.searchlight.block.AbstractLightBlock;
 import com.csykes.searchlight.block.SearchlightBlock;
 import com.csykes.searchlight.block.SearchlightBlockEntity;
 import net.minecraft.client.model.geom.ModelPart;
@@ -90,7 +91,7 @@ public class SearchlightBlockRenderer implements BlockEntityRenderer<Searchlight
         body.xRot = (float) (Mth.atan2(Mth.sqrt((float) (direction.z * direction.z + direction.x * direction.x)), (float) direction.y) + Math.PI);
         body.render(poseStack, vertexConsumer, packedLight, packedOverlay);
 
-        boolean shouldRenderLight = blockEntity.getLightSourcePos() != null && !blockEntity.getBlockState().getValue(SearchlightBlock.POWERED);
+        boolean shouldRenderLight = blockEntity.getLightSourcePos() != null && !blockEntity.getBlockState().getValue(AbstractLightBlock.LIT);
         lightFace.setPos((float) pivot.x, (float) pivot.y, (float) pivot.z);
         lightFace.yRot = body.yRot;
         lightFace.xRot = body.xRot;

@@ -1,5 +1,6 @@
 package com.csykes.searchlight;
 
+import com.csykes.searchlight.block.AbstractLightBlock;
 import com.csykes.searchlight.block.SearchlightBlock;
 import com.csykes.searchlight.block.SearchlightBlockEntity;
 import com.csykes.searchlight.block.SearchlightLightSourceBlock;
@@ -17,6 +18,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
@@ -24,6 +26,8 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
+import com.csykes.searchlight.block.WallLightBlockEntity;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredItem;
@@ -53,7 +57,8 @@ public class Searchlight {
             .sound(SoundType.METAL)
             .requiresCorrectToolForDrops()
             .strength(4.0f)
-            .noOcclusion()));
+            .noOcclusion()
+            .lightLevel((state) -> (state.getValue(AbstractLightBlock.BRIGHTNESS).getId() + 1) * 3)));
 
     public static final DeferredItem<BlockItem> SEARCHLIGHT_ITEM = ITEMS.registerSimpleBlockItem("searchlight", SEARCHLIGHT_BLOCK);
 
@@ -70,6 +75,10 @@ public class Searchlight {
     public static final Map<String, DeferredItem<? extends Item>> WALL_LIGHT_ITEMS = new LinkedHashMap<>();
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SearchlightBlockEntity>> SEARCHLIGHT_BE = BLOCK_ENTITY_TYPES.register("searchlight_entity", () -> BlockEntityType.Builder.of(SearchlightBlockEntity::new, SEARCHLIGHT_BLOCK.get()).build(null));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<WallLightBlockEntity>> WALL_LIGHT_BE = BLOCK_ENTITY_TYPES.register("wall_light_entity", () -> {
+        Block[] blocks = WALL_LIGHTS.values().stream().map(DeferredBlock::get).toArray(Block[]::new);
+        return BlockEntityType.Builder.of(WallLightBlockEntity::new, blocks).build(null);
+    });
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<SearchlightLightSourceBlockEntity>> LIGHT_SOURCE_BE = BLOCK_ENTITY_TYPES.register("searchlight_lightsource_entity", () -> BlockEntityType.Builder.of(SearchlightLightSourceBlockEntity::new, LIGHT_SOURCE_BLOCK.get()).build(null));
 
     static {
@@ -84,7 +93,7 @@ public class Searchlight {
     private static void registerWallLight(String postfix) {
         String name = "wall_light_" + postfix;
         DeferredBlock<Block> block = BLOCKS.register(name, () -> new WallLightBlock(BlockBehaviour.Properties.of()
-                .lightLevel((state) -> 14)
+                .lightLevel((state) -> !state.getValue(BlockStateProperties.LIT) ? (state.getValue(AbstractLightBlock.BRIGHTNESS).getId() + 1) * 3 : 0)
                 .sound(SoundType.STONE)
                 .noOcclusion()));
         WALL_LIGHTS.put(postfix, block);
@@ -102,6 +111,7 @@ public class Searchlight {
 
     public Searchlight(IEventBus modEventBus, ModContainer modContainer) {
         modEventBus.addListener(this::commonSetup);
+        modEventBus.addListener(this::registerCapabilities);
 
         BLOCKS.register(modEventBus);
         ITEMS.register(modEventBus);
@@ -119,5 +129,15 @@ public class Searchlight {
 
     private void addCreative(BuildCreativeModeTabContentsEvent event) {
         // Additional creative tab population if needed
+    }
+
+    private void registerCapabilities(RegisterCapabilitiesEvent event) {
+        if (net.neoforged.fml.ModList.get().isLoaded("computercraft")) {
+            try {
+                CCIntegration.register(event);
+            } catch (Throwable e) {
+                LOGGER.error("Failed to register ComputerCraft integration", e);
+            }
+        }
     }
 }

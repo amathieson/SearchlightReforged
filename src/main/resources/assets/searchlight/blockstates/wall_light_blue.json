@@ -1,54 +1,531 @@
-{
+﻿{
   "variants": {
-    "face=ceiling,facing=east": {
+    "brightness=off,lit=true,face=ceiling,facing=east": {
       "model": "searchlight:block/wall_light_floor_blue",
       "x": 180,
       "y": 270
     },
-    "face=ceiling,facing=north": {
+    "brightness=off,lit=false,face=ceiling,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 270
+    },
+    "brightness=low,lit=true,face=ceiling,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 270
+    },
+    "brightness=low,lit=false,face=ceiling,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 270
+    },
+    "brightness=medium,lit=true,face=ceiling,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 270
+    },
+    "brightness=medium,lit=false,face=ceiling,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 270
+    },
+    "brightness=high,lit=true,face=ceiling,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 270
+    },
+    "brightness=high,lit=false,face=ceiling,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 270
+    },
+    "brightness=ultra,lit=true,face=ceiling,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 270
+    },
+    "brightness=ultra,lit=false,face=ceiling,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 270
+    },
+    "brightness=off,lit=true,face=ceiling,facing=north": {
       "model": "searchlight:block/wall_light_floor_blue",
       "x": 180,
       "y": 180
     },
-    "face=ceiling,facing=south": {
+    "brightness=off,lit=false,face=ceiling,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 180
+    },
+    "brightness=low,lit=true,face=ceiling,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 180
+    },
+    "brightness=low,lit=false,face=ceiling,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 180
+    },
+    "brightness=medium,lit=true,face=ceiling,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 180
+    },
+    "brightness=medium,lit=false,face=ceiling,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 180
+    },
+    "brightness=high,lit=true,face=ceiling,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 180
+    },
+    "brightness=high,lit=false,face=ceiling,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 180
+    },
+    "brightness=ultra,lit=true,face=ceiling,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 180
+    },
+    "brightness=ultra,lit=false,face=ceiling,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 180
+    },
+    "brightness=off,lit=true,face=ceiling,facing=south": {
       "model": "searchlight:block/wall_light_floor_blue",
       "x": 180
     },
-    "face=ceiling,facing=west": {
+    "brightness=off,lit=false,face=ceiling,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180
+    },
+    "brightness=low,lit=true,face=ceiling,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180
+    },
+    "brightness=low,lit=false,face=ceiling,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180
+    },
+    "brightness=medium,lit=true,face=ceiling,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180
+    },
+    "brightness=medium,lit=false,face=ceiling,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180
+    },
+    "brightness=high,lit=true,face=ceiling,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180
+    },
+    "brightness=high,lit=false,face=ceiling,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180
+    },
+    "brightness=ultra,lit=true,face=ceiling,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180
+    },
+    "brightness=ultra,lit=false,face=ceiling,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180
+    },
+    "brightness=off,lit=true,face=ceiling,facing=west": {
       "model": "searchlight:block/wall_light_floor_blue",
       "x": 180,
       "y": 90
     },
-    "face=floor,facing=east": {
+    "brightness=off,lit=false,face=ceiling,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 90
+    },
+    "brightness=low,lit=true,face=ceiling,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 90
+    },
+    "brightness=low,lit=false,face=ceiling,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 90
+    },
+    "brightness=medium,lit=true,face=ceiling,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 90
+    },
+    "brightness=medium,lit=false,face=ceiling,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 90
+    },
+    "brightness=high,lit=true,face=ceiling,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 90
+    },
+    "brightness=high,lit=false,face=ceiling,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 90
+    },
+    "brightness=ultra,lit=true,face=ceiling,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 90
+    },
+    "brightness=ultra,lit=false,face=ceiling,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "x": 180,
+      "y": 90
+    },
+    "brightness=off,lit=true,face=floor,facing=east": {
       "model": "searchlight:block/wall_light_floor_blue",
       "y": 90
     },
-    "face=floor,facing=north": {
+    "brightness=off,lit=false,face=floor,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 90
+    },
+    "brightness=low,lit=true,face=floor,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 90
+    },
+    "brightness=low,lit=false,face=floor,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 90
+    },
+    "brightness=medium,lit=true,face=floor,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 90
+    },
+    "brightness=medium,lit=false,face=floor,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 90
+    },
+    "brightness=high,lit=true,face=floor,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 90
+    },
+    "brightness=high,lit=false,face=floor,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 90
+    },
+    "brightness=ultra,lit=true,face=floor,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 90
+    },
+    "brightness=ultra,lit=false,face=floor,facing=east": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 90
+    },
+    "brightness=off,lit=true,face=floor,facing=north": {
       "model": "searchlight:block/wall_light_floor_blue"
     },
-    "face=floor,facing=south": {
+    "brightness=off,lit=false,face=floor,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue"
+    },
+    "brightness=low,lit=true,face=floor,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue"
+    },
+    "brightness=low,lit=false,face=floor,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue"
+    },
+    "brightness=medium,lit=true,face=floor,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue"
+    },
+    "brightness=medium,lit=false,face=floor,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue"
+    },
+    "brightness=high,lit=true,face=floor,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue"
+    },
+    "brightness=high,lit=false,face=floor,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue"
+    },
+    "brightness=ultra,lit=true,face=floor,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue"
+    },
+    "brightness=ultra,lit=false,face=floor,facing=north": {
+      "model": "searchlight:block/wall_light_floor_blue"
+    },
+    "brightness=off,lit=true,face=floor,facing=south": {
       "model": "searchlight:block/wall_light_floor_blue",
       "y": 180
     },
-    "face=floor,facing=west": {
+    "brightness=off,lit=false,face=floor,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 180
+    },
+    "brightness=low,lit=true,face=floor,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 180
+    },
+    "brightness=low,lit=false,face=floor,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 180
+    },
+    "brightness=medium,lit=true,face=floor,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 180
+    },
+    "brightness=medium,lit=false,face=floor,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 180
+    },
+    "brightness=high,lit=true,face=floor,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 180
+    },
+    "brightness=high,lit=false,face=floor,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 180
+    },
+    "brightness=ultra,lit=true,face=floor,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 180
+    },
+    "brightness=ultra,lit=false,face=floor,facing=south": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 180
+    },
+    "brightness=off,lit=true,face=floor,facing=west": {
       "model": "searchlight:block/wall_light_floor_blue",
       "y": 270
     },
-    "face=wall,facing=east": {
+    "brightness=off,lit=false,face=floor,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 270
+    },
+    "brightness=low,lit=true,face=floor,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 270
+    },
+    "brightness=low,lit=false,face=floor,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 270
+    },
+    "brightness=medium,lit=true,face=floor,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 270
+    },
+    "brightness=medium,lit=false,face=floor,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 270
+    },
+    "brightness=high,lit=true,face=floor,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 270
+    },
+    "brightness=high,lit=false,face=floor,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 270
+    },
+    "brightness=ultra,lit=true,face=floor,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 270
+    },
+    "brightness=ultra,lit=false,face=floor,facing=west": {
+      "model": "searchlight:block/wall_light_floor_blue",
+      "y": 270
+    },
+    "brightness=off,lit=true,face=wall,facing=east": {
       "model": "searchlight:block/wall_light_blue",
       "x": 90,
       "y": 90
     },
-    "face=wall,facing=north": {
+    "brightness=off,lit=false,face=wall,facing=east": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 90
+    },
+    "brightness=low,lit=true,face=wall,facing=east": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 90
+    },
+    "brightness=low,lit=false,face=wall,facing=east": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 90
+    },
+    "brightness=medium,lit=true,face=wall,facing=east": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 90
+    },
+    "brightness=medium,lit=false,face=wall,facing=east": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 90
+    },
+    "brightness=high,lit=true,face=wall,facing=east": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 90
+    },
+    "brightness=high,lit=false,face=wall,facing=east": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 90
+    },
+    "brightness=ultra,lit=true,face=wall,facing=east": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 90
+    },
+    "brightness=ultra,lit=false,face=wall,facing=east": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 90
+    },
+    "brightness=off,lit=true,face=wall,facing=north": {
       "model": "searchlight:block/wall_light_blue",
       "x": 90
     },
-    "face=wall,facing=south": {
+    "brightness=off,lit=false,face=wall,facing=north": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90
+    },
+    "brightness=low,lit=true,face=wall,facing=north": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90
+    },
+    "brightness=low,lit=false,face=wall,facing=north": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90
+    },
+    "brightness=medium,lit=true,face=wall,facing=north": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90
+    },
+    "brightness=medium,lit=false,face=wall,facing=north": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90
+    },
+    "brightness=high,lit=true,face=wall,facing=north": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90
+    },
+    "brightness=high,lit=false,face=wall,facing=north": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90
+    },
+    "brightness=ultra,lit=true,face=wall,facing=north": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90
+    },
+    "brightness=ultra,lit=false,face=wall,facing=north": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90
+    },
+    "brightness=off,lit=true,face=wall,facing=south": {
       "model": "searchlight:block/wall_light_blue",
       "x": 90,
       "y": 180
     },
-    "face=wall,facing=west": {
+    "brightness=off,lit=false,face=wall,facing=south": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 180
+    },
+    "brightness=low,lit=true,face=wall,facing=south": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 180
+    },
+    "brightness=low,lit=false,face=wall,facing=south": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 180
+    },
+    "brightness=medium,lit=true,face=wall,facing=south": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 180
+    },
+    "brightness=medium,lit=false,face=wall,facing=south": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 180
+    },
+    "brightness=high,lit=true,face=wall,facing=south": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 180
+    },
+    "brightness=high,lit=false,face=wall,facing=south": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 180
+    },
+    "brightness=ultra,lit=true,face=wall,facing=south": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 180
+    },
+    "brightness=ultra,lit=false,face=wall,facing=south": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 180
+    },
+    "brightness=off,lit=true,face=wall,facing=west": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 270
+    },
+    "brightness=off,lit=false,face=wall,facing=west": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 270
+    },
+    "brightness=low,lit=true,face=wall,facing=west": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 270
+    },
+    "brightness=low,lit=false,face=wall,facing=west": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 270
+    },
+    "brightness=medium,lit=true,face=wall,facing=west": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 270
+    },
+    "brightness=medium,lit=false,face=wall,facing=west": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 270
+    },
+    "brightness=high,lit=true,face=wall,facing=west": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 270
+    },
+    "brightness=high,lit=false,face=wall,facing=west": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 270
+    },
+    "brightness=ultra,lit=true,face=wall,facing=west": {
+      "model": "searchlight:block/wall_light_blue",
+      "x": 90,
+      "y": 270
+    },
+    "brightness=ultra,lit=false,face=wall,facing=west": {
       "model": "searchlight:block/wall_light_blue",
       "x": 90,
       "y": 270

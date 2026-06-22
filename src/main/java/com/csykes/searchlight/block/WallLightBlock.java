@@ -4,18 +4,33 @@ import com.csykes.searchlight.Searchlight;
 import com.csykes.searchlight.util.SearchlightUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.FaceAttachedHorizontalDirectionalBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.AttachFace;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.IntegerProperty;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import org.jetbrains.annotations.NotNull;
 
-public class WallLightBlock extends FaceAttachedHorizontalDirectionalBlock {
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.Nullable;
+
+public class WallLightBlock extends AbstractLightBlock implements EntityBlock {
     protected static final VoxelShape CEILING_X_SHAPE = Block.box(6, 14, 5, 10, 16, 11);
     protected static final VoxelShape CEILING_Z_SHAPE = Block.box(5, 14, 6, 11, 16, 10);
     protected static final VoxelShape FLOOR_X_SHAPE = Block.box(6, 0, 5, 10, 2, 11);
@@ -29,12 +44,19 @@ public class WallLightBlock extends FaceAttachedHorizontalDirectionalBlock {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any()
                 .setValue(FACING, Direction.NORTH)
-                .setValue(FACE, AttachFace.WALL));
+                .setValue(FACE, AttachFace.WALL)
+                .setValue(LIT, true)
+                .setValue(BRIGHTNESS, BrightnessStage.MEDIUM));
     }
 
     @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, FACE);
+    public @Nullable BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
+        return new WallLightBlockEntity(pos, state);
+    }
+
+    @Override
+    protected void onPowerChanged(Level world, BlockPos pos, BlockState state, boolean isPowered) {
+        // Wall lights don't have extra logic on power change
     }
 
     @Override
