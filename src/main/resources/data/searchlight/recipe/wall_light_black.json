@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "group": "wall_light",
+  "ingredients": [
+    {
+      "item": "minecraft:black_dye"
+    },
+    {
+      "item": "searchlight:wall_light_iron"
+    }
+  ],
+  "result": {
+    "id": "searchlight:wall_light_black",
+    "count": 1
+  }
+}

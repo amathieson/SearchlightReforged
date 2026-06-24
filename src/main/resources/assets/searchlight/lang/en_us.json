@@ -1,6 +1,7 @@
 {
   "itemGroup.searchlight": "Searchlight Mod",
   "itemGroup.searchlight.searchlight": "Searchlight Mod",
+  "block.searchlight.corner_light": "Corner Light",
   "block.searchlight.searchlight": "Searchlight",
   "block.searchlight.searchlight_lightsource": "Searchlight Light Source",
   "block.searchlight.wall_light_iron": "Iron Wall Light",

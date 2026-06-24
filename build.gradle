@@ -124,6 +124,11 @@ configurations {
 }
 
 dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.34'
+    annotationProcessor 'org.projectlombok:lombok:1.18.34'
+    testCompileOnly 'org.projectlombok:lombok:1.18.34'
+    testAnnotationProcessor 'org.projectlombok:lombok:1.18.34'
+
     implementation "dev.architectury:architectury-neoforge:${architectury_version}"
     localRuntime "me.shedaniel:RoughlyEnoughItems-neoforge:${rei_version}"
     compileOnly "maven.modrinth:cc-tweaked:1.120.0-neoforge"

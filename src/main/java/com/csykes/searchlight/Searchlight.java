@@ -1,11 +1,13 @@
 package com.csykes.searchlight;
 
-import com.csykes.searchlight.block.AbstractLightBlock;
-import com.csykes.searchlight.block.SearchlightBlock;
-import com.csykes.searchlight.block.SearchlightBlockEntity;
-import com.csykes.searchlight.block.SearchlightLightSourceBlock;
-import com.csykes.searchlight.block.SearchlightLightSourceBlockEntity;
-import com.csykes.searchlight.block.WallLightBlock;
+import com.csykes.searchlight.features.searchlight.SearchlightBlock;
+import com.csykes.searchlight.features.searchlight.SearchlightBlockEntity;
+import com.csykes.searchlight.features.searchlight.SearchlightLightSourceBlock;
+import com.csykes.searchlight.features.searchlight.SearchlightLightSourceBlockEntity;
+import com.csykes.searchlight.features.wall_light.WallLightBlock;
+import com.csykes.searchlight.features.wall_light.WallLightBlockEntity;
+import com.csykes.searchlight.integration.cc_tweaked.CCIntegration;
+import com.csykes.searchlight.utils.lighting.AbstractLightBlock;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -26,7 +28,6 @@ import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.BuildCreativeModeTabContentsEvent;
-import com.csykes.searchlight.block.WallLightBlockEntity;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -43,6 +44,7 @@ import java.util.function.Supplier;
 public class Searchlight {
     public static final String MODID = "searchlight";
     public static final Logger LOGGER = LogUtils.getLogger();
+    public static final int MAX_DISTANCE = 256;
 
     public static final DeferredRegister.Blocks BLOCKS = DeferredRegister.createBlocks(MODID);
     public static final DeferredRegister.Items ITEMS = DeferredRegister.createItems(MODID);
@@ -58,7 +60,7 @@ public class Searchlight {
             .requiresCorrectToolForDrops()
             .strength(4.0f)
             .noOcclusion()
-            .lightLevel((state) -> !state.getValue(AbstractLightBlock.LIT) ? (state.getValue(AbstractLightBlock.BRIGHTNESS).getId() + 1) * 3 : 0)));
+            .lightLevel((state) -> state.getValue(AbstractLightBlock.LIT) ? (state.getValue(AbstractLightBlock.BRIGHTNESS).getId() + 1) * 3 : 0)));
 
     public static final DeferredItem<BlockItem> SEARCHLIGHT_ITEM = ITEMS.registerSimpleBlockItem("searchlight", SEARCHLIGHT_BLOCK);
 
@@ -93,7 +95,7 @@ public class Searchlight {
     private static void registerWallLight(String postfix) {
         String name = "wall_light_" + postfix;
         DeferredBlock<Block> block = BLOCKS.register(name, () -> new WallLightBlock(BlockBehaviour.Properties.of()
-                .lightLevel((state) -> !state.getValue(BlockStateProperties.LIT) ? (state.getValue(AbstractLightBlock.BRIGHTNESS).getId() + 1) * 3 : 0)
+                .lightLevel((state) -> state.getValue(BlockStateProperties.LIT) ? (state.getValue(AbstractLightBlock.BRIGHTNESS).getId() + 1) * 3 : 0)
                 .sound(SoundType.STONE)
                 .noOcclusion()));
         WALL_LIGHTS.put(postfix, block);
