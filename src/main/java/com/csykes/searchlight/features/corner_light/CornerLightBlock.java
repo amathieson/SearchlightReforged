@@ -1,128 +1,124 @@
 package com.csykes.searchlight.features.corner_light;
 
+import com.csykes.searchlight.features.wall_light.WallLightBlockEntity;
 import com.csykes.searchlight.utils.lighting.AbstractDirectionalLightBlock;
 import com.csykes.searchlight.utils.lighting.BrightnessStage;
 import com.csykes.searchlight.utils.lighting.CornerLightStage;
 import com.csykes.searchlight.utils.lighting.LightRodConnection;
+import lombok.Getter;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.context.BlockPlaceContext;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.EntityBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.EnumProperty;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.VoxelShape;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-public class CornerLightBlock extends AbstractDirectionalLightBlock {
-    public static final EnumProperty<LightRodConnection> CONNECTION = EnumProperty.create("connection", LightRodConnection.class);
-    public static final EnumProperty<CornerLightStage> CORNER = EnumProperty.create("corner", CornerLightStage.class);
-
+@Getter
+public class CornerLightBlock extends AbstractDirectionalLightBlock implements EntityBlock {
     private final DyeColor blockColor;
+
+    @Override
+    public @Nullable BlockEntity newBlockEntity(@NotNull BlockPos pos, @NotNull BlockState state) {
+        return new WallLightBlockEntity(pos, state);
+    }
 
     public CornerLightBlock(Properties properties, DyeColor blockColor) {
         super(properties);
         this.blockColor = blockColor;
         this.registerDefaultState(this.stateDefinition.any()
-                .setValue(FACING, Direction.UP)
                 .setValue(LIT, true)
                 .setValue(BRIGHTNESS, BrightnessStage.MEDIUM)
                 .setValue(CONNECTION, LightRodConnection.SINGLE)
                 .setValue(CORNER, CornerLightStage.BOTTOM_LEFT));
     }
 
-    public DyeColor getBlockColor() {
-        return this.blockColor;
-    }
-
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        Direction clickedFace = context.getClickedFace();
         BlockState baseState = super.getStateForPlacement(context);
         if (baseState == null) return null;
 
+        Vec3 hit = context.getClickLocation();
         BlockPos pos = context.getClickedPos();
-        Direction playerFacing = context.getHorizontalDirection();
 
-        // Determine predictable corner staging based on player orientation
-        CornerLightStage corner = CornerLightStage.BOTTOM_LEFT;
-        double lookAngle = context.getRotation(); // 0 to 360 degrees
-
-        if (lookAngle >= 315 || lookAngle < 45) corner = CornerLightStage.TOP_RIGHT;
-        else if (lookAngle >= 45 && lookAngle < 135) corner = CornerLightStage.BOTTOM_RIGHT;
-        else if (lookAngle >= 135 && lookAngle < 225) corner = CornerLightStage.BOTTOM_LEFT;
-        else corner = CornerLightStage.TOP_LEFT;
-
-        return baseState
-                .setValue(FACING, clickedFace)
-                .setValue(CORNER, corner)
-                .setValue(CONNECTION, this.getConnectionState(context.getLevel(), pos, clickedFace, corner));
+        CornerLightStage corner = getCorner(hit, pos);
+        return baseState.setValue(CORNER, corner).setValue(CONNECTION, this.getConnectionState(context.getLevel(), pos, corner));
     }
 
-    @Override
-    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        super.createBlockStateDefinition(builder);
-        builder.add(CONNECTION, CORNER);
-    }
+    private static @NotNull CornerLightStage getCorner(Vec3 hit, BlockPos pos) {
+        double localX = hit.x - pos.getX();
+        double localZ = hit.z - pos.getZ();
 
-    @Override
-    public BlockState updateShape(BlockState state, Direction direction, BlockState neighborState, LevelAccessor level, BlockPos pos, BlockPos neighborPos) {
-        // Run updates when adjacent neighbor rods match our orientation vector context
-        return state.setValue(CONNECTION, getConnectionState(level, pos, state.getValue(FACING), state.getValue(CORNER)));
-    }
+        CornerLightStage corner;
 
-    private LightRodConnection getConnectionState(LevelAccessor level, BlockPos pos, Direction facing, CornerLightStage corner) {
-        // Calculate neighbor connection check vectors relative to the light's placement plane
-        Direction lineDir = getLineDirection(facing, corner);
-
-        boolean hasForward = isMatchingConnection(level, pos.relative(lineDir), facing, corner);
-        boolean hasBackward = isMatchingConnection(level, pos.relative(lineDir.getOpposite()), facing, corner);
-
-        if (hasForward && hasBackward) return LightRodConnection.MIDDLE;
-        if (hasForward) return LightRodConnection.BOTTOM;
-        if (hasBackward) return LightRodConnection.TOP;
-        return LightRodConnection.SINGLE;
-    }
-
-    private Direction getLineDirection(Direction facing, CornerLightStage corner) {
-        if (facing.getAxis() == Direction.Axis.Y) {
-            return (corner == CornerLightStage.BOTTOM_LEFT || corner == CornerLightStage.TOP_LEFT) ? Direction.NORTH : Direction.SOUTH;
+        if (localX < 0.5) {
+            if (localZ < 0.5) {
+                corner = CornerLightStage.BOTTOM_RIGHT;
+            } else {
+                corner = CornerLightStage.BOTTOM_LEFT;
+            }
+        } else {
+            if (localZ < 0.5) {
+                corner = CornerLightStage.TOP_RIGHT;
+            } else {
+                corner = CornerLightStage.TOP_LEFT;
+            }
         }
-        return Direction.UP;
+        return corner;
     }
 
-    private LightRodConnection getConnectionState(LevelAccessor level, BlockPos pos, Direction facing) {
-        // 1. Get the direction enum defining where the rod line actually travels
-        CornerLightStage corner = level.getBlockState(pos).getValue(CORNER);
-        Direction lineDir = this.getLineDirection(facing, corner);
+    @Override
+    public @NotNull BlockState updateShape(BlockState state, @NotNull Direction direction, @NotNull BlockState neighborState, @NotNull LevelAccessor level, @NotNull BlockPos pos, @NotNull BlockPos neighborPos) {
+        return state.setValue(CONNECTION, getConnectionState(level, pos, state.getValue(CORNER)));
+    }
 
-        // 2. Search down the line instead of looking at the wall facing vector
-        boolean hasForward = isMatchingConnection(level, pos.relative(lineDir), facing, corner);
-        boolean hasBackward = isMatchingConnection(level, pos.relative(lineDir.getOpposite()), facing, corner);
+    private LightRodConnection getConnectionState(LevelAccessor level, BlockPos pos, CornerLightStage corner) {
+        boolean hasAbove = isMatchingConnection(level, pos.relative(Direction.UP), corner);
+        boolean hasBelow = isMatchingConnection(level, pos.relative(Direction.DOWN), corner);
 
-        if (hasForward && hasBackward) return LightRodConnection.MIDDLE;
-        if (hasForward) return LightRodConnection.BOTTOM;
-        if (hasBackward) return LightRodConnection.TOP;
+        if (hasAbove && hasBelow) return LightRodConnection.MIDDLE;
+        if (hasAbove) return LightRodConnection.BOTTOM;
+        if (hasBelow) return LightRodConnection.TOP;
         return LightRodConnection.SINGLE;
     }
 
-    private boolean isMatchingConnection(LevelAccessor level, BlockPos target, Direction facing, CornerLightStage corner) {
+    private boolean isMatchingConnection(LevelAccessor level, BlockPos target, CornerLightStage corner) {
         BlockState state = level.getBlockState(target);
-        // 3. Match ANY corner light block subclass instance so colors merge cleanly
-        return state.getBlock() instanceof CornerLightBlock
-                && state.getValue(FACING) == facing
-                && state.getValue(CORNER) == corner;
+        return state.getBlock() instanceof CornerLightBlock && state.getValue(CORNER) == corner;
     }
-    
-    public static final com.mojang.serialization.MapCodec<CornerLightBlock> CODEC = com.mojang.serialization.codecs.RecordCodecBuilder.mapCodec(instance ->
-            instance.group(
-                    propertiesCodec(),
-                    net.minecraft.world.item.DyeColor.CODEC.fieldOf("color").forGetter(CornerLightBlock::getBlockColor)
-            ).apply(instance, CornerLightBlock::new)
-    );
+
+    public static final com.mojang.serialization.MapCodec<CornerLightBlock> CODEC = com.mojang.serialization.codecs.RecordCodecBuilder.mapCodec(instance -> instance.group(propertiesCodec(), net.minecraft.world.item.DyeColor.CODEC.fieldOf("color").forGetter(CornerLightBlock::getBlockColor)).apply(instance, CornerLightBlock::new));
 
     @Override
-    protected com.mojang.serialization.MapCodec<? extends net.minecraft.world.level.block.DirectionalBlock> codec() {
+    protected com.mojang.serialization.@NotNull MapCodec<? extends net.minecraft.world.level.block.Block> codec() {
         return CODEC;
     }
+
+    private static final VoxelShape SHAPE_BL = Block.box(0, 0, 14, 2, 16, 16);
+
+    private static final VoxelShape SHAPE_BR = Block.box(0, 0, 0, 2, 16, 2);
+
+    private static final VoxelShape SHAPE_TR = Block.box(14, 0, 0, 16, 16, 2);
+
+    private static final VoxelShape SHAPE_TL = Block.box(14, 0, 14, 16, 16, 16);
+
+
+    @Override
+    public @NotNull VoxelShape getShape(BlockState state, @NotNull BlockGetter level, @NotNull BlockPos pos, @NotNull CollisionContext context) {
+        return switch (state.getValue(CORNER)) {
+            case BOTTOM_LEFT -> SHAPE_BL;
+            case BOTTOM_RIGHT -> SHAPE_BR;
+            case TOP_RIGHT -> SHAPE_TR;
+            case TOP_LEFT -> SHAPE_TL;
+        };
+    }
+
 }

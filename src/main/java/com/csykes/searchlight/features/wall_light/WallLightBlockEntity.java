@@ -13,7 +13,7 @@ import org.jetbrains.annotations.NotNull;
 
 public class WallLightBlockEntity extends BlockEntity {
     public WallLightBlockEntity(BlockPos pos, BlockState state) {
-        super(Searchlight.WALL_LIGHT_BE.get(), pos, state);
+        super(state.getBlock() instanceof com.csykes.searchlight.features.corner_light.CornerLightBlock ? Searchlight.CORNER_LIGHT_BE.get() : Searchlight.WALL_LIGHT_BE.get(), pos, state);
     }
 
     @Override

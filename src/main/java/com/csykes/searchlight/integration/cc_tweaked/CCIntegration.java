@@ -22,5 +22,10 @@ public class CCIntegration {
                 Searchlight.WALL_LIGHT_BE.get(),
                 (be, side) -> new LightPeripheral(be)
         );
+        event.registerBlockEntity(
+                CAPABILITY,
+                Searchlight.CORNER_LIGHT_BE.get(),
+                (be, side) -> new LightPeripheral(be)
+        );
     }
 }

@@ -21,7 +21,6 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.registries.DeferredBlock;
@@ -88,15 +87,12 @@ public class Searchlight {
         registerWallLight("prismarine");
         for (DyeColor color : DyeColor.values()) {
             registerWallLight(color.getName());
+            registerCornerLight(color.getName());
         }
     }
 
     private static void registerWallLight(String postfix) {
         String wl_name = "wall_light_" + postfix;
-        String cl_name = "corner_light_" + postfix;
-
-        final net.minecraft.world.item.DyeColor blockColor = net.minecraft.world.item.DyeColor.byName(postfix, net.minecraft.world.item.DyeColor.WHITE);
-
         DeferredBlock<Block> block = BLOCKS.register(wl_name, () -> new WallLightBlock(BlockBehaviour.Properties.of()
                 .lightLevel((state) -> {
                     if (!state.getValue(BlockStateProperties.LIT)) return 0;
@@ -107,6 +103,17 @@ public class Searchlight {
                 .sound(SoundType.STONE)
                 .noOcclusion()));
 
+
+        WALL_LIGHTS.put(postfix, block);
+        WALL_LIGHT_ITEMS.put(postfix, ITEMS.registerSimpleBlockItem(wl_name, block));
+    }
+
+    private static void registerCornerLight(String postfix) {
+
+        String cl_name = "corner_light_" + postfix;
+
+        final net.minecraft.world.item.DyeColor blockColor = net.minecraft.world.item.DyeColor.byName(postfix, net.minecraft.world.item.DyeColor.WHITE);
+
         DeferredBlock<Block> corner_light = BLOCKS.register(cl_name, () -> new CornerLightBlock(BlockBehaviour.Properties.of()
                 .lightLevel((state) -> {
                     if (!state.getValue(BlockStateProperties.LIT)) return 0;
@@ -116,14 +123,11 @@ public class Searchlight {
                 })
                 .sound(SoundType.GLASS)
                 .noOcclusion(), blockColor));
-
-        WALL_LIGHTS.put(postfix, block);
+        DeferredItem<BlockItem> item = ITEMS.registerSimpleBlockItem(cl_name, corner_light);
         CORNER_LIGHTS.put(postfix, corner_light);
-        WALL_LIGHT_ITEMS.put(postfix, ITEMS.registerSimpleBlockItem(wl_name, block));
-
-        // BONUS FIX: Your items registry map was assigning 'block' to corner items instead of 'corner_light'
-        CORNER_LIGHTS_ITEMS.put(postfix, ITEMS.registerSimpleBlockItem(cl_name, corner_light));
+        CORNER_LIGHTS_ITEMS.put(postfix, item);
     }
+
 
     // Creative Tab
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> TAB = CREATIVE_MODE_TABS.register("searchlight_tab", () -> CreativeModeTab.builder()
@@ -135,7 +139,7 @@ public class Searchlight {
                 CORNER_LIGHTS_ITEMS.values().forEach(item -> output.accept(item.get()));
             }).build());
 
-    public Searchlight(IEventBus modEventBus, ModContainer modContainer) {
+    public Searchlight(IEventBus modEventBus) {
         modEventBus.addListener(this::registerCapabilities);
 
         BLOCKS.register(modEventBus);

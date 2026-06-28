@@ -1,4 +1,5 @@
 # Searchlight (& Wall Lights) (Unofficial NeoForge Port)
+![Version](https://img.shields.io/badge/version-v1.0.0A-blue) ![NeoForge](https://img.shields.io/badge/NeoForge-21.1.65-orange)
 
 ## DISCLAIMER
 This is a ported version of the Searchlight mod, originally created by Lizard-Of-Oz. The port is unofficial and not affiliated with the original mod or its creators.
@@ -29,4 +30,10 @@ For a full breakdown of the base features, blocks, and recipes, check out the or
 - [ ] fix the super bright beacon 
 - [ ] fix recipes
 - [ ] DYENAMICS SUPPORT?
+
+### Release Automation
+Pushing a version tag matching `v*` (e.g., `v1.0.1`) automatically triggers a GitHub Actions workflow that:
+- Bumps the `mod_version` in [`gradle.properties`](gradle.properties) to match the tag version (stripping the `v` prefix).
+- Updates the version badge shown at the top of this [`README.md`](README.md).
+- Builds the project and publishes a new GitHub Release with the compiled `.jar` build artifacts.
 
