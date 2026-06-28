@@ -48,10 +48,6 @@ public final class SearchlightUtil {
         return world.getBlockState(blockPos);
     }
 
-    public static boolean setBlockStateForceLoad(Level world, BlockPos blockPos, BlockState blockState) {
-        return world.setBlock(blockPos, blockState, 3);
-    }
-
     public static Direction getDirection(BlockState state) {
         AttachFace face = state.getValue(FaceAttachedHorizontalDirectionalBlock.FACE);
         if (face == AttachFace.CEILING)

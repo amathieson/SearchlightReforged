@@ -1,6 +1,5 @@
 package com.csykes.searchlight.features.searchlight;
 
-import com.csykes.searchlight.Searchlight;
 import com.csykes.searchlight.utils.SearchlightUtil;
 import com.csykes.searchlight.utils.lighting.AbstractLightBlock;
 import net.minecraft.core.BlockPos;

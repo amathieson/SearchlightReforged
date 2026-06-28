@@ -17,6 +17,7 @@ import org.jetbrains.annotations.Nullable;
 
 public class SearchlightLightSourceBlockEntity extends BlockEntity {
     public @Nullable BlockPos searchlightBlockPos;
+    public boolean suppressMovement = false;
 
     public SearchlightLightSourceBlockEntity(BlockPos blockPos, BlockState blockState) {
         super(Searchlight.LIGHT_SOURCE_BE.get(), blockPos, blockState);
@@ -52,6 +53,8 @@ public class SearchlightLightSourceBlockEntity extends BlockEntity {
     }
 
     public void moveLightSource() {
+        if (suppressMovement)
+            return;
         if (level == null || level.isClientSide || searchlightBlockPos == null)
             return;
         SearchlightUtil.castBlockEntity(level.getBlockEntity(searchlightBlockPos), searchlightBlockPos, (SearchlightBlockEntity searchlightBlockEntity) -> {

@@ -14,17 +14,17 @@ public class CCIntegration {
         event.registerBlockEntity(
                 CAPABILITY,
                 Searchlight.SEARCHLIGHT_BE.get(),
-                (be, side) -> new LightPeripheral(be)
+                (be, side) -> new LightPeripheral(be, "search_light")
         );
         event.registerBlockEntity(
                 CAPABILITY,
                 Searchlight.WALL_LIGHT_BE.get(),
-                (be, side) -> new LightPeripheral(be)
+                (be, side) -> new LightPeripheral(be, "wall_light")
         );
         event.registerBlockEntity(
                 CAPABILITY,
                 Searchlight.CORNER_LIGHT_BE.get(),
-                (be, side) -> new LightPeripheral(be)
+                (be, side) -> new LightPeripheral(be, "corner_light")
         );
     }
 }

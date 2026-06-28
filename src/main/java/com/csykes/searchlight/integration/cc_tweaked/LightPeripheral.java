@@ -3,10 +3,10 @@ package com.csykes.searchlight.integration.cc_tweaked;
 import com.csykes.searchlight.Searchlight;
 import com.csykes.searchlight.features.corner_light.CornerLightBlock;
 import com.csykes.searchlight.features.wall_light.WallLightBlock;
-import com.csykes.searchlight.utils.lighting.AbstractDirectionalLightBlock;
 import com.csykes.searchlight.utils.lighting.AbstractLightBlock;
 import com.csykes.searchlight.utils.lighting.BrightnessStage;
 import com.csykes.searchlight.utils.lighting.CornerLightStage;
+import com.csykes.searchlight.utils.lighting.LightRequest;
 import dan200.computercraft.api.lua.LuaFunction;
 import dan200.computercraft.api.peripheral.IPeripheral;
 import net.minecraft.core.BlockPos;
@@ -20,15 +20,17 @@ import org.jetbrains.annotations.Nullable;
 
 public class LightPeripheral implements IPeripheral {
     private final BlockEntity tile;
+    private final String type;
 
-    public LightPeripheral(BlockEntity tile) {
+    public LightPeripheral(BlockEntity tile, String type) {
         this.tile = tile;
+        this.type = type;
     }
 
     @NotNull
     @Override
     public String getType() {
-        return "searchlight";
+        return this.type;
     }
 
     @Override
@@ -76,8 +78,6 @@ public class LightPeripheral implements IPeripheral {
     private BlockState setBrightnessProperty(BlockState state, BrightnessStage stage) {
         if (state.hasProperty(AbstractLightBlock.BRIGHTNESS)) {
             return state.setValue(AbstractLightBlock.BRIGHTNESS, stage);
-        } else if (state.hasProperty(AbstractDirectionalLightBlock.BRIGHTNESS)) {
-            return state.setValue(AbstractDirectionalLightBlock.BRIGHTNESS, stage);
         }
         return state;
     }
@@ -85,17 +85,13 @@ public class LightPeripheral implements IPeripheral {
     private BrightnessStage getBrightnessProperty(BlockState state) {
         if (state.hasProperty(AbstractLightBlock.BRIGHTNESS)) {
             return state.getValue(AbstractLightBlock.BRIGHTNESS);
-        } else if (state.hasProperty(AbstractDirectionalLightBlock.BRIGHTNESS)) {
-            return state.getValue(AbstractDirectionalLightBlock.BRIGHTNESS);
         }
         return BrightnessStage.OFF;
     }
 
-    private BlockState setLitProperty(BlockState state, boolean lit) {
-        if (state.hasProperty(AbstractLightBlock.LIT)) {
-            return state.setValue(AbstractLightBlock.LIT, lit);
-        } else if (state.hasProperty(AbstractDirectionalLightBlock.LIT)) {
-            return state.setValue(AbstractDirectionalLightBlock.LIT, lit);
+    private BlockState setLitProperty(BlockState state, LightRequest lit) {
+        if (state.hasProperty(AbstractLightBlock.LIGHT_REQUEST)) {
+            return state.setValue(AbstractLightBlock.LIGHT_REQUEST, lit);
         }
         return state;
     }
@@ -103,8 +99,6 @@ public class LightPeripheral implements IPeripheral {
     private boolean getLitProperty(BlockState state) {
         if (state.hasProperty(AbstractLightBlock.LIT)) {
             return state.getValue(AbstractLightBlock.LIT);
-        } else if (state.hasProperty(AbstractDirectionalLightBlock.LIT)) {
-            return state.getValue(AbstractDirectionalLightBlock.LIT);
         }
         return false;
     }
@@ -117,18 +111,18 @@ public class LightPeripheral implements IPeripheral {
 
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
-        BrightnessStage stage = BrightnessStage.fromId(Math.max(0, Math.min(4, level)));
+        BrightnessStage stage = BrightnessStage.fromId(Math.clamp(level, 0, 4));
 
         if (block instanceof CornerLightBlock) {
             for (BlockPos connectedPos : getConnectedCornerLights(world, pos, state)) {
                 BlockState s = world.getBlockState(connectedPos);
                 BlockState updatedState = setBrightnessProperty(s, stage);
-                world.setBlock(connectedPos, updatedState, 3);
+                world.setBlockAndUpdate(connectedPos, updatedState);
                 world.updateNeighborsAt(connectedPos, s.getBlock());
             }
-        } else if (block instanceof AbstractLightBlock || block instanceof AbstractDirectionalLightBlock) {
+        } else if (block instanceof AbstractLightBlock) {
             BlockState updatedState = setBrightnessProperty(state, stage);
-            world.setBlock(pos, updatedState, 3);
+            world.setBlockAndUpdate(pos, updatedState);
             world.updateNeighborsAt(pos, block);
         }
     }
@@ -137,14 +131,14 @@ public class LightPeripheral implements IPeripheral {
     public final int getBrightness() {
         BlockState state = tile.getBlockState();
         Block block = state.getBlock();
-        if (block instanceof AbstractLightBlock || block instanceof AbstractDirectionalLightBlock) {
+        if (block instanceof AbstractLightBlock) {
             return getBrightnessProperty(state).getId();
         }
         return 0;
     }
 
     @LuaFunction(mainThread = true)
-    public final void setLit(boolean lit) {
+    public final void setLit(LightRequest lit) {
         Level world = tile.getLevel();
         BlockPos pos = tile.getBlockPos();
         if (world == null) return;
@@ -152,17 +146,19 @@ public class LightPeripheral implements IPeripheral {
         BlockState state = world.getBlockState(pos);
         Block block = state.getBlock();
 
-        if (block instanceof CornerLightBlock) {
+        if (block instanceof CornerLightBlock cornerBlock) {
             for (BlockPos connectedPos : getConnectedCornerLights(world, pos, state)) {
                 BlockState s = world.getBlockState(connectedPos);
                 BlockState updatedState = setLitProperty(s, lit);
-                world.setBlock(connectedPos, updatedState, 3);
+                world.setBlockAndUpdate(connectedPos, updatedState);
                 world.updateNeighborsAt(connectedPos, s.getBlock());
+                cornerBlock.updateLitState(world, connectedPos, updatedState);
             }
-        } else if (block instanceof AbstractLightBlock || block instanceof AbstractDirectionalLightBlock) {
+        } else if (block instanceof AbstractLightBlock abstractLightBlock) {
             BlockState updatedState = setLitProperty(state, lit);
-            world.setBlock(pos, updatedState, 3);
+            world.setBlockAndUpdate(pos, updatedState);
             world.updateNeighborsAt(pos, block);
+            abstractLightBlock.updateLitState(world, pos, updatedState);
         }
     }
 
@@ -170,7 +166,7 @@ public class LightPeripheral implements IPeripheral {
     public final boolean isLit() {
         BlockState state = tile.getBlockState();
         Block block = state.getBlock();
-        if (block instanceof AbstractLightBlock || block instanceof AbstractDirectionalLightBlock) {
+        if (block instanceof AbstractLightBlock) {
             return getLitProperty(state);
         }
         return false;
@@ -203,7 +199,7 @@ public class LightPeripheral implements IPeripheral {
                 if (state.hasProperty(WallLightBlock.BRIGHTNESS))
                     newState = newState.setValue(WallLightBlock.BRIGHTNESS, state.getValue(WallLightBlock.BRIGHTNESS));
 
-                world.setBlock(pos, newState, 3);
+                world.setBlockAndUpdate(pos, newState);
                 world.updateNeighborsAt(pos, newBlock);
                 return true;
             }
@@ -229,7 +225,7 @@ public class LightPeripheral implements IPeripheral {
                     if (s.hasProperty(CornerLightBlock.BRIGHTNESS))
                         newState = newState.setValue(CornerLightBlock.BRIGHTNESS, s.getValue(CornerLightBlock.BRIGHTNESS));
 
-                    world.setBlock(connectedPos, newState, 3);
+                    world.setBlockAndUpdate(connectedPos, newState);
                     world.updateNeighborsAt(connectedPos, newBlock);
                 }
                 return true;

@@ -1,7 +1,7 @@
 package com.csykes.searchlight.features.corner_light;
 
 import com.csykes.searchlight.features.wall_light.WallLightBlockEntity;
-import com.csykes.searchlight.utils.lighting.AbstractDirectionalLightBlock;
+import com.csykes.searchlight.utils.lighting.AbstractLightBlock;
 import com.csykes.searchlight.utils.lighting.BrightnessStage;
 import com.csykes.searchlight.utils.lighting.CornerLightStage;
 import com.csykes.searchlight.utils.lighting.LightRodConnection;
@@ -12,10 +12,13 @@ import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.StateDefinition;
+import net.minecraft.world.level.block.state.properties.AttachFace;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -23,7 +26,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 @Getter
-public class CornerLightBlock extends AbstractDirectionalLightBlock implements EntityBlock {
+public class CornerLightBlock extends AbstractLightBlock implements EntityBlock {
     private final DyeColor blockColor;
 
     @Override
@@ -35,10 +38,23 @@ public class CornerLightBlock extends AbstractDirectionalLightBlock implements E
         super(properties);
         this.blockColor = blockColor;
         this.registerDefaultState(this.stateDefinition.any()
+                .setValue(FACING, Direction.NORTH)
+                .setValue(FACE, AttachFace.WALL)
                 .setValue(LIT, true)
                 .setValue(BRIGHTNESS, BrightnessStage.MEDIUM)
                 .setValue(CONNECTION, LightRodConnection.SINGLE)
                 .setValue(CORNER, CornerLightStage.BOTTOM_LEFT));
+    }
+
+    @Override
+    protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
+        super.createBlockStateDefinition(builder);
+        builder.add(CONNECTION, CORNER);
+    }
+
+    @Override
+    protected boolean canSurvive(@NotNull BlockState state, @NotNull LevelReader level, @NotNull BlockPos pos) {
+        return true;
     }
 
     @Override
@@ -98,7 +114,7 @@ public class CornerLightBlock extends AbstractDirectionalLightBlock implements E
     public static final com.mojang.serialization.MapCodec<CornerLightBlock> CODEC = com.mojang.serialization.codecs.RecordCodecBuilder.mapCodec(instance -> instance.group(propertiesCodec(), net.minecraft.world.item.DyeColor.CODEC.fieldOf("color").forGetter(CornerLightBlock::getBlockColor)).apply(instance, CornerLightBlock::new));
 
     @Override
-    protected com.mojang.serialization.@NotNull MapCodec<? extends net.minecraft.world.level.block.Block> codec() {
+    protected com.mojang.serialization.@NotNull MapCodec<? extends net.minecraft.world.level.block.FaceAttachedHorizontalDirectionalBlock> codec() {
         return CODEC;
     }
 

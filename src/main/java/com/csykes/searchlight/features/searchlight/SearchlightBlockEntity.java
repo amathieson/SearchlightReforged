@@ -73,8 +73,12 @@ public class SearchlightBlockEntity extends BlockEntity {
         this.lightSourcePos = null;
         setChanged();
         level.sendBlockUpdated(worldPosition, getBlockState(), getBlockState(), 3);
-        if (oldLightSourcePos != null && level.getBlockState(oldLightSourcePos).getBlock() instanceof SearchlightLightSourceBlock)
-            return level.setBlock(oldLightSourcePos, Blocks.AIR.defaultBlockState(), 3);
+        if (oldLightSourcePos != null && level.getBlockState(oldLightSourcePos).getBlock() instanceof SearchlightLightSourceBlock) {
+            SearchlightUtil.castBlockEntity(level.getBlockEntity(oldLightSourcePos), oldLightSourcePos, (SearchlightLightSourceBlockEntity be) -> {
+                be.suppressMovement = true;
+            });
+            return level.setBlockAndUpdate(oldLightSourcePos, Blocks.AIR.defaultBlockState());
+        }
         return false;
     }
 
@@ -84,7 +88,10 @@ public class SearchlightBlockEntity extends BlockEntity {
             return false;
 
         if (level != null && !level.isClientSide && level.getBlockState(lightPos).getBlock() instanceof SearchlightLightSourceBlock) {
-            level.setBlock(lightPos, Blocks.AIR.defaultBlockState(), 3);
+            SearchlightUtil.castBlockEntity(level.getBlockEntity(lightPos), lightPos, (SearchlightLightSourceBlockEntity be) -> {
+                be.suppressMovement = true;
+            });
+            level.setBlockAndUpdate(lightPos, Blocks.AIR.defaultBlockState());
         }
 
         setChanged();
@@ -130,14 +137,14 @@ public class SearchlightBlockEntity extends BlockEntity {
         }
 
         BlockState oldBlockState = level.getBlockState(newLightPos);
-        if (!level.setBlock(newLightPos, Searchlight.LIGHT_SOURCE_BLOCK.get().defaultBlockState(), 3))
+        if (!level.setBlockAndUpdate(newLightPos, Searchlight.LIGHT_SOURCE_BLOCK.get().defaultBlockState()))
             return false;
 
         if (!SearchlightUtil.castBlockEntity(level.getBlockEntity(newLightPos), newLightPos, (SearchlightLightSourceBlockEntity lightBlockEntity) -> {
             lightBlockEntity.searchlightBlockPos = getBlockPos();
             setLightSourcePos(newLightPos);
         })) {
-            level.setBlock(newLightPos, oldBlockState, 3);
+            level.setBlockAndUpdate(newLightPos, oldBlockState);
             // If it failed to place, and it wasn't already there, clear it
             if (lightSourcePos != null && lightSourcePos.equals(newLightPos)) {
                 setLightSourcePos(null);

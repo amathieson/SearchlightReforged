@@ -1,6 +1,7 @@
 package com.csykes.searchlight.utils.lighting;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -24,14 +25,17 @@ import org.jetbrains.annotations.NotNull;
 public abstract class AbstractLightBlock extends FaceAttachedHorizontalDirectionalBlock {
     public static final EnumProperty<BrightnessStage> BRIGHTNESS = EnumProperty.create("brightness", BrightnessStage.class);
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
+    public static final EnumProperty<LightRequest> LIGHT_REQUEST = EnumProperty.create("light_request", LightRequest.class);
+    public static final EnumProperty<LightRodConnection> CONNECTION = EnumProperty.create("connection", LightRodConnection.class);
+    public static final EnumProperty<CornerLightStage> CORNER = EnumProperty.create("corner", CornerLightStage.class);
 
-    public AbstractLightBlock(@NotNull Properties properties) {
+    protected AbstractLightBlock(@NotNull Properties properties) {
         super(properties);
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        builder.add(FACING, FACE, LIT, BRIGHTNESS);
+        builder.add(FACING, FACE, LIT, BRIGHTNESS, LIGHT_REQUEST);
     }
 
     @Override
@@ -46,14 +50,45 @@ public abstract class AbstractLightBlock extends FaceAttachedHorizontalDirection
         }
     }
 
-    protected void updateLitState(Level world, BlockPos pos, BlockState state) {
+    public void updateLitState(Level world, BlockPos pos, BlockState state) {
         if (world.isClientSide) return;
         boolean isPoweredNow = world.hasNeighborSignal(pos);
         boolean wasLitBefore = state.getValue(LIT);
+        LightRequest requested = state.getValue(LIGHT_REQUEST);
+
+        if (state.hasProperty(CONNECTION)) {
+            if (state.getValue(CONNECTION) == LightRodConnection.BOTTOM || state.getValue(CONNECTION) == LightRodConnection.MIDDLE) {
+                int distance = 1;
+                BlockState target = world.getBlockState(pos.relative(Direction.UP, distance));
+                while (target.getBlock() instanceof AbstractLightBlock) {
+                    isPoweredNow |= world.hasNeighborSignal(pos.relative(Direction.UP, distance));
+                    if (target.getValue(LIGHT_REQUEST) != LightRequest.RELEASE)
+                    {
+                        requested = target.getValue(LIGHT_REQUEST);
+                    }
+                    target = world.getBlockState(pos.relative(Direction.UP, distance));
+                    distance++;
+                }
+            }
+
+            if (state.getValue(CONNECTION) == LightRodConnection.TOP || state.getValue(CONNECTION) == LightRodConnection.MIDDLE) {
+                int distance = 1;
+                BlockState target = world.getBlockState(pos.relative(Direction.DOWN, distance));
+                while (target.getBlock() instanceof AbstractLightBlock) {
+                    isPoweredNow |= world.hasNeighborSignal(pos.relative(Direction.DOWN, distance));
+                    distance++;
+                    target = world.getBlockState(pos.relative(Direction.DOWN, distance));
+                }
+            }
+        }
         boolean shouldBeLit = !isPoweredNow;
+        if (requested != LightRequest.RELEASE) {
+            shouldBeLit = requested == LightRequest.ON;
+        }
 
         if (wasLitBefore != shouldBeLit) {
-            world.setBlock(pos, state.setValue(LIT, shouldBeLit), 3);
+            world.setBlockAndUpdate(pos, state.setValue(LIT, shouldBeLit));
+            world.updateNeighborsAt(pos, this);
         }
     }
 
@@ -69,39 +104,35 @@ public abstract class AbstractLightBlock extends FaceAttachedHorizontalDirection
     @Override
     protected ItemInteractionResult useItemOn(ItemStack stack, BlockState state, Level world, BlockPos pos, Player player, InteractionHand hand, BlockHitResult hit) {
         BrightnessStage brightness = state.getValue(BRIGHTNESS);
-        if (stack.is(Items.GLOWSTONE_DUST)) {
-            if (brightness != BrightnessStage.ULTRA) {
-                if (!world.isClientSide) {
-                    BrightnessStage next = brightness.next();
-                    world.setBlock(pos, state.setValue(BRIGHTNESS, next), 3);
-                    world.updateNeighborsAt(pos, this);
-                    if (!player.getAbilities().instabuild) {
-                        stack.shrink(1);
-                    }
-                    world.playSound(null, pos, SoundEvents.GLOW_ITEM_FRAME_PLACE, SoundSource.BLOCKS, 1.0f, 1.0f);
-                    if (next == BrightnessStage.ULTRA) {
-                        player.displayClientMessage(Component.translatable("searchlight.message.highest_brightness"), true);
-                    }
-                }
-                return ItemInteractionResult.sidedSuccess(world.isClientSide);
+        BrightnessStage next = brightness;
+        boolean success = false;
+        if (world.isClientSide)
+            return super.useItemOn(stack, state, world, pos, player, hand, hit);
+        if (stack.is(Items.GLOWSTONE_DUST) && brightness != BrightnessStage.ULTRA) {
+            next = brightness.next();
+            world.playSound(null, pos, SoundEvents.GLOW_ITEM_FRAME_PLACE, SoundSource.BLOCKS, 1.0f, 1.0f);
+            if (next == BrightnessStage.ULTRA) {
+                player.displayClientMessage(Component.translatable("searchlight.message.highest_brightness"), true);
             }
-        } else if (stack.is(Items.REDSTONE)) {
-            if (brightness != BrightnessStage.OFF) {
-                if (!world.isClientSide) {
-                    BrightnessStage next = brightness.previous();
-                    world.setBlock(pos, state.setValue(BRIGHTNESS, next), 3);
-                    world.updateNeighborsAt(pos, this);
-                    if (!player.getAbilities().instabuild) {
-                        stack.shrink(1);
-                    }
-                    world.playSound(null, pos, SoundEvents.SAND_PLACE, SoundSource.BLOCKS, 1.0f, 1.0f);
-                    if (next == BrightnessStage.OFF) {
-                        player.displayClientMessage(Component.translatable("searchlight.message.lowest_brightness"), true);
-                    }
-                }
-                return ItemInteractionResult.sidedSuccess(world.isClientSide);
+            success = true;
+        } else if (stack.is(Items.REDSTONE) && brightness != BrightnessStage.OFF) {
+            next = brightness.previous();
+            world.playSound(null, pos, SoundEvents.SAND_PLACE, SoundSource.BLOCKS, 1.0f, 1.0f);
+            if (next == BrightnessStage.OFF) {
+                player.displayClientMessage(Component.translatable("searchlight.message.lowest_brightness"), true);
             }
+            success = true;
         }
+
+        if (success) {
+            world.setBlockAndUpdate(pos, state.setValue(BRIGHTNESS, next));
+            world.updateNeighborsAt(pos, this);
+            if (!player.getAbilities().instabuild) {
+                stack.shrink(1);
+            }
+            return ItemInteractionResult.sidedSuccess(false);
+        }
+
         return super.useItemOn(stack, state, world, pos, player, hand, hit);
     }
 }
