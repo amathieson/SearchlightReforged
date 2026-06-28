@@ -22,23 +22,26 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jetbrains.annotations.NotNull;
 
-public abstract class AbstractDirectionalLightBlock extends DirectionalBlock {
+public abstract class AbstractDirectionalLightBlock extends Block {
     public static final EnumProperty<BrightnessStage> BRIGHTNESS = EnumProperty.create("brightness", BrightnessStage.class);
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
+    public static final EnumProperty<LightRodConnection> CONNECTION = EnumProperty.create("connection", LightRodConnection.class);
+    public static final EnumProperty<CornerLightStage> CORNER = EnumProperty.create("corner", CornerLightStage.class);
 
     public AbstractDirectionalLightBlock(@NotNull Properties properties) {
         super(properties);
         // Set the default facing direction, e.g., North, unlit, with standard brightness
         this.registerDefaultState(this.stateDefinition.any()
-                .setValue(FACING, Direction.NORTH)
+                .setValue(CONNECTION, LightRodConnection.SINGLE)
+                .setValue(CORNER, CornerLightStage.BOTTOM_LEFT)
                 .setValue(LIT, Boolean.TRUE)
-                .setValue(BRIGHTNESS, BrightnessStage.MEDIUM)); // Adjust default stage as needed
+                .setValue(BRIGHTNESS, BrightnessStage.MEDIUM)); // Adjust the default stage as needed
     }
 
     @Override
     protected void createBlockStateDefinition(StateDefinition.Builder<Block, BlockState> builder) {
-        // Replaced FACE with standard 6-way FACING property
-        builder.add(FACING, LIT, BRIGHTNESS);
+        builder.add(LIT, BRIGHTNESS);
+        builder.add(CONNECTION, CORNER);
     }
 
     @Override
@@ -57,18 +60,37 @@ public abstract class AbstractDirectionalLightBlock extends DirectionalBlock {
         if (world.isClientSide) return;
         boolean isPoweredNow = world.hasNeighborSignal(pos);
         boolean wasLitBefore = state.getValue(LIT);
+
+        if (state.getValue(CONNECTION) == LightRodConnection.BOTTOM || state.getValue(CONNECTION) == LightRodConnection.MIDDLE) {
+            int distance = 1;
+            BlockState target = world.getBlockState(pos.relative(Direction.UP, distance));
+            while (target.getBlock() instanceof AbstractDirectionalLightBlock) {
+                isPoweredNow |= world.hasNeighborSignal(pos.relative(Direction.UP, distance));
+                distance++;
+                target = world.getBlockState(pos.relative(Direction.UP, distance));
+            }
+        }
+
+        if (state.getValue(CONNECTION) == LightRodConnection.TOP || state.getValue(CONNECTION) == LightRodConnection.MIDDLE) {
+            int distance = 1;
+            BlockState target = world.getBlockState(pos.relative(Direction.DOWN, distance));
+            while (target.getBlock() instanceof AbstractDirectionalLightBlock) {
+                isPoweredNow |= world.hasNeighborSignal(pos.relative(Direction.DOWN, distance));
+                distance++;
+                target = world.getBlockState(pos.relative(Direction.DOWN, distance));
+            }
+        }
         boolean shouldBeLit = !isPoweredNow;
 
         if (wasLitBefore != shouldBeLit) {
             world.setBlock(pos, state.setValue(LIT, shouldBeLit), 3);
+            world.updateNeighborsAt(pos, this);
         }
     }
 
     @Override
     public BlockState getStateForPlacement(BlockPlaceContext context) {
-        // Sets the FACING property to the side clicked by the user (pointing out from the wall/floor/ceiling)
         return this.defaultBlockState()
-                .setValue(FACING, context.getClickedFace())
                 .setValue(LIT, !context.getLevel().hasNeighborSignal(context.getClickedPos()));
     }
 

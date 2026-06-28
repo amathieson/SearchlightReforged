@@ -127,7 +127,7 @@ public class SearchlightBlockRenderer implements BlockEntityRenderer<Searchlight
         poseStack.mulPose(Axis.XP.rotation((float) (Math.PI + xRot)));
         poseStack.translate(-0.5, 0.35, -0.5);
 
-        BeaconRenderer.renderBeaconBeam(poseStack, bufferSource, SEARCHLIGHT_BEAM, partialTick, 0.6f, gameTime, 0, (int) distance, 0xC8A2C8, 0.5f, 0.20f);
+        BeaconRenderer.renderBeaconBeam(poseStack, bufferSource, SEARCHLIGHT_BEAM, partialTick, 0.6f, gameTime, 0, (int) distance, 0xC8A2C8, 0.20f, 0.20f);
         poseStack.popPose();
     }
 
